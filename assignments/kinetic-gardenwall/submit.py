@@ -166,11 +166,11 @@ URL = 'sdn1-001'
 partIds = ['agPA81', 'agPA82', 'agPA83']
 
 # used to generate readable run-time information for students
-partFriendlyNames = [' Host Gardenwall']
+partFriendlyNames = [' Host Gardenwall', 'Pox Gardenwall', 'Pyretic Gardenwall']
 
 # source files to collect (just for our records)
 sourceFiles = ['%s/pyretic/pyretic/kinetic/examples/gardenwall.py' % os.environ[ 'HOME' ],
-               '%s/pox/pox/kinetic/misc/gardenwall.py' % os.environ[ 'HOME' ],
+               '%s/pox/pox/misc/gardenwall.py' % os.environ[ 'HOME' ],
                '%s/pyretic/pyretic/examples/gardenwall.py' % os.environ[ 'HOME' ]]
 
 
