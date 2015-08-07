@@ -14,27 +14,35 @@ from pox.lib.util import dpidToStr
 from pox.lib.addresses import EthAddr
 from collections import namedtuple
 import os
-''' Add your imports here ... '''
-
-
 
 log = core.getLogger()
 policyFile = "%s/pox/pox/misc/firewall-policies.csv" % os.environ[ 'HOME' ]
 
 ''' Add your global variables here ... '''
-
-
+f = open(policyFile)
+rules_lst = f.readlines()[1:]
+f.close()
 
 class Firewall (EventMixin):
 
     def __init__ (self):
+        global rules_lst
         self.listenTo(core.openflow)
         log.debug("Enabling Firewall Module")
+        self.rules = []
+        for rule in rules_lst:
+            rule_parts = rule.split(",")
+            self.rules.append(EthAddr(rule_parts[1]), EthAddr(rule_parts[2]))
 
     def _handle_ConnectionUp (self, event):
         ''' Add your logic here ... '''
-
-
+        for src, dst in self.rules:
+            msg = of.ofp_flow_mod()
+            msg.match = of.ofp_match()
+            msg.match.dl_src = src
+            msg.match.dl_dst = dst
+            msg.priority = 65535
+            self.connection.send(msg)
 
         log.debug("Firewall rules installed on %s", dpidToStr(event.dpid))
 

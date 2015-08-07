@@ -51,7 +51,7 @@ class gardenwall(DynamicPolicy):
 
         def lpec(f):
             # Your logic here
-            # return match =
+            return match(srcip=f['srcip'])
 
         ## SET UP TRANSITION FUNCTIONS
 
@@ -71,7 +71,7 @@ class gardenwall(DynamicPolicy):
 
             # If infected, drop
             # Your logic here
-            # self.case ()
+            self.case(is_true(V('infected')),C(drop))
 
             # Else, identity    
             self.default(C(identity))
@@ -84,9 +84,13 @@ class gardenwall(DynamicPolicy):
                             init=False, 
                             trans=infected),
             # Your logic here
-            # exempt =
-            # policy =
-            )
+            exempt=FSMVar(type=BoolType(),
+                            init=False,
+                            trans=exempt),
+            policy=FSMVar(type=Type(Policy,{drop,identity,redirectToGardenWall()}),
+                            init=identity,
+                            trans=policy)
+        )
 
         ### SET UP POLICY AND EVENT STREAMS
 

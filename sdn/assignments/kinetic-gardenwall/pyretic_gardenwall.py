@@ -76,8 +76,17 @@ class pyretic_gardenwall(DynamicPolicy):
                 ### --- Add your logic here ---- ###
                 
                 # Forward to gardenwall if both True.
+                if infected_state and exempt_state:
+                    this_policy = if_(match(srcip=IP('10.0.0.3')),
+                                    passthrough,
+                                    modify(dstmac=MAC('00:00:00:00:00:03'), dstip=IP('10.0.0.3')))
                 
                 # Else if infected is True, drop.
+                elif infected_state:
+                    this_policy = drop
+
+                else:
+                    this_policy = passthrough
                 
                 # Add
                 policies.append(this_policy)

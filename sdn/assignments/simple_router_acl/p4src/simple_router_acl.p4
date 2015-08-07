@@ -81,6 +81,22 @@ table forward {
 //                                         conflict with the builtin functions)
 //    c. has size of 256
 
+action _nop() {
+
+}
+
+table acl {
+    reads {
+        tcp.srcPort : exact;
+        tcp.dstPort : exact;        
+    }
+    actions {
+        _drop;
+        _nop;
+    }
+    size: 256;
+}
+
 // -end-
 
 
@@ -107,6 +123,7 @@ control ingress {
     // -begin-
 
     // You should apply your acl table here ...
+    apply(acl);
 
     // -end-
 }

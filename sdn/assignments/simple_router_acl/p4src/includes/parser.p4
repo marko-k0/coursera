@@ -77,6 +77,7 @@ parser parse_ipv4 {
         // -begin-
 
         // You should check if the packet is tcp and then select the tcp parser function here ...
+        IPV4_TCP : parse_tcp;
 
         // -end-
 
@@ -90,5 +91,12 @@ parser parse_ipv4 {
 // You should implement the following here ...
 // 1. create a tcp header instance, named: `tcp`
 // 2. write the tcp parser function, named: `parse_tcp`
+
+header tcp_t tcp;
+
+parser parse_tcp {
+    extract(tcp);
+    return ingress;
+}
 
 // -end-

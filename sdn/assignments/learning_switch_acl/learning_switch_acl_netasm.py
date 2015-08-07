@@ -79,6 +79,15 @@ def main():
     # Add your logic here ...
     # -begin-
 
+    # ACL Table
+    decls.table_decls[TableId('acl_match_table')] = \
+        Table(TableFieldsCollection.MatchFields(),
+            Size(16),
+            TableTypeCollection.CAM)
+    acl_match_table = decls.table_decls[TableId('acl_match_table')]
+    acl_match_table.table_fields[Field('ipv4_src')] = Size(32), MatchTypeCollection.Binary
+    acl_match_table.table_fields[Field('ipv4_dst')] = Size(32), MatchTypeCollection.Binary
+
     # Implement the following:
     # 1. Create a new acl match table and add it in the table_decls (see above for examples)
     #    a. Table should be named: acl_match_table
@@ -123,6 +132,36 @@ def main():
             # Add you logic here ...
             # -begin-
 
+            I.ADD(O.Field(Field('has_ip')),
+                  Size(1)),
+
+            I.ADD(O.Field(Field('ipv4_ver')),
+                  Size(4)),
+            I.ADD(O.Field(Field('ipv4_ihl')),
+                  Size(4)),
+            I.ADD(O.Field(Field('ipv4_dscp')),
+                  Size(6)),
+            I.ADD(O.Field(Field('ipv4_ecn')),
+                  Size(2)),
+            I.ADD(O.Field(Field('ipv4_tlen')),
+                  Size(16)),
+            I.ADD(O.Field(Field('ipv4_id')),
+                  Size(16)),
+            I.ADD(O.Field(Field('ipv4_flgs')),
+                  Size(3)),
+            I.ADD(O.Field(Field('ipv4_fo')),
+                  Size(13)),
+            I.ADD(O.Field(Field('ipv4_ttl')),
+                  Size(8)),
+            I.ADD(O.Field(Field('ipv4_prtcl')),
+                  Size(8)),
+            I.ADD(O.Field(Field('ipv4_chksm')),
+                  Size(16)),
+            I.ADD(O.Field(Field('ipv4_src')),
+                  Size(32)),
+            I.ADD(O.Field(Field('ipv4_dst')),
+                  Size(32)),
+
             # Implement the following:
             # 1. Add a 1-bit field to check if the packet was an ip packet or not
             #    a. Name it: has_ip
@@ -154,6 +193,35 @@ def main():
             # Add your logic here ...
             # -begin-
 
+            I.LD(O.Field(Field('has_ip')),
+                 O.Value(Value(0, Size(1)))),
+            I.LD(O.Field(Field('ipv4_ver')),
+                 O.Value(Value(0, Size(4)))),
+            I.LD(O.Field(Field('ipv4_ihl')),
+                 O.Value(Value(0, Size(4)))),
+            I.LD(O.Field(Field('ipv4_dscp')),
+                 O.Value(Value(0, Size(6)))),
+            I.LD(O.Field(Field('ipv4_ecn')),
+                 O.Value(Value(0, Size(2)))),
+            I.LD(O.Field(Field('ipv4_tlen')),
+                 O.Value(Value(0, Size(16)))),
+            I.LD(O.Field(Field('ipv4_id')),
+                 O.Value(Value(0, Size(16)))),
+            I.LD(O.Field(Field('ipv4_flgs')),
+                 O.Value(Value(0, Size(3)))),
+            I.LD(O.Field(Field('ipv4_fo')),
+                 O.Value(Value(0, Size(13)))),
+            I.LD(O.Field(Field('ipv4_ttl')),
+                 O.Value(Value(0, Size(8)))),
+            I.LD(O.Field(Field('ipv4_prtcl')),
+                 O.Value(Value(0, Size(8)))),
+            I.LD(O.Field(Field('ipv4_chksm')),
+                 O.Value(Value(0, Size(16)))),
+            I.LD(O.Field(Field('ipv4_src')),
+                 O.Value(Value(0, Size(32)))),
+            I.LD(O.Field(Field('ipv4_dst')),
+                 O.Value(Value(0, Size(32)))),
+
             # Load ip header fields with default value of 0
             # Here, the Load instruction is used as follows:
             # -- I.LD(O.Field(Field('has_ip')), O.Value(Value(0, Size(1)))),
@@ -184,6 +252,44 @@ def main():
             # Add your logic here ...
             # -begin-
             
+            I.BR(O.Field(Field('eth_type')),
+                Op.Eq,
+                O.Value(Value(ETH_IP_TYPE, Size(16))),
+                Label('LBL_PARSE_0')),
+
+            I.JMP(Label('LBL_L2')),
+
+            I.LBL(Label('LBL_PARSE_0')),
+
+            I.LD(O.Field(Field('has_ip')), O.Value(Value(1, Size(1)))),
+
+            I.LD(O.Field(Field('ipv4_ver')),
+                O.Location(Location(O.Value(Value(112, Size(16)))))),
+            I.LD(O.Field(Field('ipv4_ihl')),
+                O.Location(Location(O.Value(Value(116, Size(16)))))),
+            I.LD(O.Field(Field('ipv4_dscp')),
+                O.Location(Location(O.Value(Value(120, Size(16)))))),
+            I.LD(O.Field(Field('ipv4_ecn')),
+                O.Location(Location(O.Value(Value(126, Size(16)))))),
+            I.LD(O.Field(Field('ipv4_tlen')),
+                O.Location(Location(O.Value(Value(128, Size(16)))))),
+            I.LD(O.Field(Field('ipv4_id')),
+                O.Location(Location(O.Value(Value(144, Size(16)))))),
+            I.LD(O.Field(Field('ipv4_flgs')),
+                O.Location(Location(O.Value(Value(160, Size(16)))))),
+            I.LD(O.Field(Field('ipv4_fo')),
+                O.Location(Location(O.Value(Value(163, Size(16)))))),
+            I.LD(O.Field(Field('ipv4_ttl')),
+                O.Location(Location(O.Value(Value(176, Size(16)))))),
+            I.LD(O.Field(Field('ipv4_prtcl')),
+                O.Location(Location(O.Value(Value(184, Size(16)))))),
+            I.LD(O.Field(Field('ipv4_chksm')),
+                O.Location(Location(O.Value(Value(192, Size(16)))))),
+            I.LD(O.Field(Field('ipv4_src')),
+                O.Location(Location(O.Value(Value(208, Size(16)))))),
+            I.LD(O.Field(Field('ipv4_dst')),
+                O.Location(Location(O.Value(Value(240, Size(16)))))),
+
             # Implement the following:
             # 1. Check if the incoming packet is ip (use BR instruction for this purpose)
             #    a. if it's not ip, load has_ip with value 0 and jump to l2 learning
@@ -339,6 +445,48 @@ def main():
             # Add your logic here ...
             # -begin-
 
+            I.BR(O.Field(Field('has_ip')),
+                Op.Eq,
+                O.Value(Value(0, Size(1))),
+                Label('LBL_HLT')),
+
+            I.ATM(
+                I.Code(
+                    Fields(Field('ipv4_src'), Field('ipv4_dst')),
+                    I.Instructions(
+                        # Add the following header fields in the header set
+                        I.ADD(O.Field(Field('index')),
+                              Size(16)),
+
+                        # Lookup in the match table and store the matched index
+                        I.LKt(O.Field(Field('index')),
+                              TableId('acl_match_table'),
+                              O.Operands_(
+                                  O.Field(Field('ipv4_src')),
+                                  O.Field(Field('ipv4_dst')))),
+                        I.BR(O.Field(Field('index')),
+                             Op.Neq,
+                             O.Value(Value(-1, Size(16))),
+                             Label('LBL_HLT')),
+
+                        I.DRP(Reason('no match in the acl table', '')),
+
+                        # Halt
+                        I.LBL(Label('LBL_HLT')),
+                        I.HLT()
+                    )
+                )
+            ),
+
+            #I.LKt(O.Field(Field('index')), TableId('acl_match_table'), O.Operands_(O.Field(Field('ipv4_src')), O.Field(Field('ipv4_dst')))),
+
+            #I.BR(O.Field(Field('index')),
+            #    Op.Neq,
+            #    O.Value(Value(-1, Size(16))),
+            #    Label('LBL_HLT')),
+
+            #I.DRP(Reason('no match in the acl table', '')),
+
             # Implement the following:
             # 1. Check if the packet is ip using has_ip field
             #    a. if not ip, jump to the HLT instruction
@@ -361,7 +509,7 @@ def main():
             #           b. TableId specifies the table to be used in the lookup
             #           c. O.Operands_ specifies the list of fields to be used in the lookup. Note that order of fields matters here. 
             #              1. In the above example, it means that eth_src is matched with the first column of the table and eth_dst with the second. 
-            #              2. Also, Operands_ type means that only Field and Value types can be used for the comparison i.e., you cannot used Location type here.
+            #              2. Also, Operands_ type means that only Field and Value types can be used for the comparison i.e., you can't use Location type here.
 
             # -end-
 

@@ -69,13 +69,20 @@ class Firewall (EventMixin):
         ### --- Add your logic here ---- ###
         
         # Forward to gardenwall if both True.
-
+        if infected_state and exempt_state:
+            msg = build_rewrite_rule(flow)
+            if self.eventSwitch is not None:
+                print 'Send gardenwall message.'
+                msg.command = of.ofp_flow_mod_command_rev_map['OFPFC_ADD']
+                self.eventSwitch.connection.send(msg)
 
         # Else if infected is True, drop.
-
+        elif infected_state:
+            self.install_block(flow)
 
         # Else allow by default (check clear_block(flow))
- 
+        else:
+            self.clear_block(flow)
 
     def event_handler(self, event):
         print 'Event arrived.'

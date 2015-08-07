@@ -55,5 +55,19 @@ header_type ipv4_t {
 // Note: Name the header `tcp_t` and fields: `srcPort`, `dstPort`, `seqNo`, `ackNo`, `dataOffset`, `res`, `flags`, `window`,
 //                                           `checksum`, and `urgentPtr`
 
+header_type tcp_t {
+    fields {
+        srcPort : 16;
+        dstPort : 16;
+        seqNo   : 32;
+        ackNo   : 32;
+        dataOffset : 4;
+        res     : 3;
+        flags   : 9;
+        window  : 16;
+        checksum : 16;
+        urgentPtr : 16;
+    }
+}
 
 // -end-

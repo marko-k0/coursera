@@ -40,11 +40,57 @@ class VideoSlice (EventMixin):
         '''
 
         self.portmap = {
-                        ('00-00-00-00-00-01', EthAddr('00:00:00:00:00:01'),
+                        ('00-00-00-00-00-01', None,
                          EthAddr('00:00:00:00:00:03'), 80): '00-00-00-00-00-03',
+                        ('00-00-00-00-00-01', None,
+                         EthAddr('00:00:00:00:00:03'), None): '00-00-00-00-00-02',
+                        ('00-00-00-00-00-01', None,
+                         EthAddr('00:00:00:00:00:04'), 80): '00-00-00-00-00-03',
+                        ('00-00-00-00-00-01', None,
+                         EthAddr('00:00:00:00:00:04'), None): '00-00-00-00-00-02',
+                        ('00-00-00-00-00-01', None,
+                         EthAddr('00:00:00:00:00:01'), None): 3,
+                        ('00-00-00-00-00-01', None,
+                         EthAddr('00:00:00:00:00:02'), None): 4,
+                        ('00-00-00-00-00-01', None,
+                         EthAddr('00:00:00:00:00:01'), 80): 3,
+                        ('00-00-00-00-00-01', None,
+                         EthAddr('00:00:00:00:00:02'), 80): 4,
 
-                        # Add your mapping logic here
+                        ('00-00-00-00-00-04', None,
+                         EthAddr('00:00:00:00:00:01'), 80): '00-00-00-00-00-03',
+                        ('00-00-00-00-00-04', None,
+                         EthAddr('00:00:00:00:00:01'), None): '00-00-00-00-00-02',
+                        ('00-00-00-00-00-04', None,
+                         EthAddr('00:00:00:00:00:02'), 80): '00-00-00-00-00-03',
+                        ('00-00-00-00-00-04', None,
+                         EthAddr('00:00:00:00:00:02'), None): '00-00-00-00-00-02',
+                        ('00-00-00-00-00-04', None,
+                         EthAddr('00:00:00:00:00:03'), None): 3,
+                        ('00-00-00-00-00-04', None,
+                         EthAddr('00:00:00:00:00:04'), None): 4,
+                        ('00-00-00-00-00-04', None,
+                         EthAddr('00:00:00:00:00:03'), 80): 3,
+                        ('00-00-00-00-00-04', None,
+                         EthAddr('00:00:00:00:00:04'), 80): 4,
 
+                        ('00-00-00-00-00-02', None,
+                         EthAddr('00:00:00:00:00:03'), None): '00-00-00-00-00-04',
+                        ('00-00-00-00-00-02', None,
+                         EthAddr('00:00:00:00:00:04'), None): '00-00-00-00-00-04',
+                        ('00-00-00-00-00-02', None,
+                         EthAddr('00:00:00:00:00:01'), None): '00-00-00-00-00-01',
+                        ('00-00-00-00-00-02', None,
+                         EthAddr('00:00:00:00:00:02'), None): '00-00-00-00-00-01',
+
+                        ('00-00-00-00-00-03', None,
+                         EthAddr('00:00:00:00:00:03'), None): '00-00-00-00-00-04',
+                        ('00-00-00-00-00-03', None,
+                         EthAddr('00:00:00:00:00:04'), None): '00-00-00-00-00-04',
+                        ('00-00-00-00-00-03', None,
+                         EthAddr('00:00:00:00:00:01'), None): '00-00-00-00-00-01',
+                        ('00-00-00-00-00-03', None,
+                         EthAddr('00:00:00:00:00:02'), None): '00-00-00-00-00-01',
                         }
 
     def _handle_LinkEvent (self, event):
@@ -84,18 +130,35 @@ class VideoSlice (EventMixin):
                 flood()
                 return
             else:
-                log.debug("Got unicast packet for %s at %s (input port %d):",
-                          packet.dst, dpid_to_str(event.dpid), event.port)
+                log.debug("Got unicast packet from %s for %s at %s (input port %d):",
+                          packet.src, packet.dst, dpid_to_str(event.dpid), event.port)
 
-                try:
-                    """ Add your logic here"""
+                #try:
+                if this_dpid == '00-00-00-00-00-02' or this_dpid == '00-00-00-00-00-03':
+                    t = (this_dpid, None, packet.dst, None)
+                    if t in self.portmap:
+                        end_sw = self.portmap[t]
+                        if self.adjacency[this_dpid][end_sw] is not None:
+                            install_fwdrule(event, packet, self.adjacency[this_dpid][end_sw])
 
+                else:
+                    dport = None
+                    if tcpp is not None and (tcpp.dstport == 80 or tcpp.srcport == 80):
+                        dport = 80
 
-                except AttributeError:
-                    log.debug("packet type has no transport ports, flooding")
+                    t = (this_dpid, None, packet.dst, dport)
+                    if t in self.portmap:
+                        destination = self.portmap[t]
+                        if type(destination) is str:
+                            destination = self.adjacency[this_dpid][destination]
+
+                        install_fwdrule(event, packet, destination)
+
+                #except AttributeError:
+                #    log.debug("packet type has no transport ports, flooding")
 
                     # flood and install the flow table entry for the flood
-                    install_fwdrule(event,packet,of.OFPP_FLOOD)
+                #    install_fwdrule(event,packet,of.OFPP_FLOOD)
 
         # flood, but don't install the rule
         def flood (message = None):

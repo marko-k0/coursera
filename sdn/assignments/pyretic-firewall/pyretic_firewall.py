@@ -39,8 +39,13 @@ from pyretic.lib.corelib import *
 from pyretic.lib.std import *
 
 # insert the name of the module and policy you want to import
-from pyretic.examples.<....> import <....>
+from pyretic.modules.mac_learner import mac_learner
+import os
 policy_file = "%s/pyretic/pyretic/examples/firewall-policies.csv" % os.environ[ 'HOME' ]
+
+f = open(policyFile)
+rules_lst = f.readlines()[1:]
+f.close()
 
 def main():
     # Copy the code you used to read firewall-policies.csv last week
@@ -48,14 +53,17 @@ def main():
     # start with a policy that doesn't match any packets
     not_allowed = none
     # and add traffic that isn't allowed
-    for <each pair of MAC address in firewall-policies.csv>:
-        not_allowed = not_allowed + ( <traffic going in one direction> ) + ( <traffic going in the other direction> )
+    for rule in rules_lst:
+        rule_parts = rule.split(",")
+        not_allowed = not_allowed | \ 
+            match(srcmac=MAC(rule_parts[1]),dstmac=MAC(rule_parts[2])) | \ 
+            match(srcmac=MAC(rule_parts[2]),dstmac=MAC(rule_parts[1])))
 
     # express allowed traffic in terms of not_allowed - hint use '~'
-    allowed = <...>
+    allowed = ~not_allowed
 
     # and only send allowed traffic to the mac learning (act_like_switch) logic
-    return allowed >> act_like_switch()
+    return allowed >> mac_learner()
 
 
 
