@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- From: file:/home/marko/Dev/coursera/mocca/security/assignments/iRemember/app/src/main/res/values-sw600dp/account_preferences.xml -->
+    <eat-comment/>
+    <bool name="isTablet">false</bool>
+</resources>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/home/marko/Dev/coursera/mocca/security/assignments/iRemember/app/libs/slf4j-api-1.7.5.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="04a1c54e213b8a3ae375b7b0ef95791bcac61c71">
+        <dex dex="/home/marko/Dev/coursera/mocca/security/assignments/iRemember/app/build/intermediates/pre-dexed/debug/slf4j-api-1.7.5-c7fbc39a0ae7fb34b283f4489e91ec7a2ffd82ef.jar" />
+    </item>
+    <item
+        jar="/opt/Android/Sdk/extras/android/m2repository/com/android/support/support-v4/18.0.0/support-v4-18.0.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="44ec51e9d395a47aab135e5e1b556c0007442156">
+        <dex dex="/home/marko/Dev/coursera/mocca/security/assignments/iRemember/app/build/intermediates/pre-dexed/debug/support-v4-18.0.0-990102ea804ead2dc9e3a13c359505bcfe8d25c2.jar" />
+    </item>
+
+</items>
