@@ -20,10 +20,7 @@ package org.magnum.dataup;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.magnum.dataup.model.Video;
 import org.magnum.dataup.model.VideoStatus;
 import org.magnum.dataup.model.VideoStatus.VideoState;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -46,31 +44,44 @@ import org.springframework.web.multipart.MultipartFile;
 @Controller
 public class VideoController {
 	
-	private static final AtomicLong currentId = new AtomicLong(0L);
-    private Map<Long,Video> videos = new HashMap<Long, Video>();
+    @Autowired
+    private VideoRepository videoRepository;
 
-    public Video save(Video entity) {
-        checkAndSetId(entity);
-        entity.setDataUrl(getDataUrl(entity.getId()));
-        videos.put(entity.getId(), entity);
-        return entity;
-    }
-
-    private void checkAndSetId(Video entity) {
-        if(entity.getId() == 0){
-            entity.setId(currentId.incrementAndGet());
-        }
-    }
-	
 	@RequestMapping(value="/video", method=RequestMethod.GET)
 	public @ResponseBody List<Video> getVideoList() {
-		return new ArrayList<Video>(videos.values());
-		
+		ArrayList<Video> videoList = new ArrayList<Video>();
+		for(Video v : videoRepository.findAll())
+			videoList.add(v);
+
+		return videoList;	
 	}
 	
 	@RequestMapping(value="/video", method=RequestMethod.POST)
 	public @ResponseBody Video addVideo(@RequestBody Video video) {
-		return save(video);
+		Video savedVideo = videoRepository.save(video);
+		savedVideo.setDataUrl(getDataUrl(savedVideo.getId()));
+		savedVideo = videoRepository.save(savedVideo);
+
+		return savedVideo;
+	}
+
+	@RequestMapping(value="/video/{id}/rating/{rate}")
+	public @ResponseBody Video addVideoRating(
+			@PathVariable("id") long id,
+			@PathVariable("rate") float rate,
+			HttpServletResponse response) throws Exception {
+		
+		Video video = videoRepository.findOne(id);
+		if(video == null) {
+			String msg = "(POST) Video with this id does not exists!";
+			response.sendError(404, msg);
+			return null;
+		}
+		video.setTotalVotes(video.getTotalVotes() + 1);
+		video.setRating(((video.getTotalVotes()-1) * video.getRating() + rate) / video.getTotalVotes());
+		video = videoRepository.save(video);
+
+		return video;
 	}
 	
 	@RequestMapping(value="/video/{id}/data", method=RequestMethod.POST)
@@ -79,11 +90,7 @@ public class VideoController {
 			@RequestParam("data" ) MultipartFile videoData,
 			HttpServletResponse response) throws Exception {
 		
-		Video video = null;
-		for(Video v : videos.values())
-			if(v.getId() == id)
-				video = v;
-		
+		Video video = videoRepository.findOne(id);
 		if(video == null) {
 			String msg = "(GET) Video with this id does not exists!";
 			response.sendError(404, msg);
@@ -102,11 +109,7 @@ public class VideoController {
 			@PathVariable("id") long id,
 			HttpServletResponse response) throws IOException {
 		
-		Video video = null;
-		for(Video v : videos.values())
-			if(v.getId() == id)
-				video = v;
-		
+		Video video = videoRepository.findOne(id);
 		if(video == null) {
 			String msg = "(POST) Video with this id does not exists!";
 			response.sendError(404, msg);

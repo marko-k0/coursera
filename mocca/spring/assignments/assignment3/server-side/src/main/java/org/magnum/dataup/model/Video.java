@@ -19,36 +19,17 @@ package org.magnum.dataup.model;
 
 import java.util.Objects;
 
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.GenerationType;
+import javax.persistence.GeneratedValue;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fluentinterface.ReflectionBuilder;
 import com.fluentinterface.builder.Builder;
 
-/**
-                    ___                    ___           ___                            
-     _____         /\  \                  /\  \         /\  \                           
-    /::\  \       /::\  \                 \:\  \       /::\  \         ___              
-   /:/\:\  \     /:/\:\  \                 \:\  \     /:/\:\  \       /\__\             
-  /:/  \:\__\   /:/  \:\  \            _____\:\  \   /:/  \:\  \     /:/  /             
- /:/__/ \:|__| /:/__/ \:\__\          /::::::::\__\ /:/__/ \:\__\   /:/__/              
- \:\  \ /:/  / \:\  \ /:/  /          \:\~~\~~\/__/ \:\  \ /:/  /  /::\  \              
-  \:\  /:/  /   \:\  /:/  /            \:\  \        \:\  /:/  /  /:/\:\  \             
-   \:\/:/  /     \:\/:/  /              \:\  \        \:\/:/  /   \/__\:\  \            
-    \::/  /       \::/  /                \:\__\        \::/  /         \:\__\           
-     \/__/         \/__/                  \/__/         \/__/           \/__/           
-      ___           ___                                     ___                         
-     /\  \         /\  \         _____                     /\__\                        
-    |::\  \       /::\  \       /::\  \       ___         /:/ _/_         ___           
-    |:|:\  \     /:/\:\  \     /:/\:\  \     /\__\       /:/ /\__\       /|  |          
-  __|:|\:\  \   /:/  \:\  \   /:/  \:\__\   /:/__/      /:/ /:/  /      |:|  |          
- /::::|_\:\__\ /:/__/ \:\__\ /:/__/ \:|__| /::\  \     /:/_/:/  /       |:|  |          
- \:\~~\  \/__/ \:\  \ /:/  / \:\  \ /:/  / \/\:\  \__  \:\/:/  /      __|:|__|          
-  \:\  \        \:\  /:/  /   \:\  /:/  /   ~~\:\/\__\  \::/__/      /::::\  \          
-   \:\  \        \:\/:/  /     \:\/:/  /       \::/  /   \:\  \      ~~~~\:\  \         
-    \:\__\        \::/  /       \::/  /        /:/  /     \:\__\          \:\__\        
-     \/__/         \/__/         \/__/         \/__/       \/__/           \/__/        
- */
-
+@Entity
 public class Video {
 
 	public static VideoBuilder create() {
@@ -62,6 +43,8 @@ public class Video {
 		public VideoBuilder withContentType(String contentType);
 	}
 
+	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
 	private long id;
 	private String title;
 	private long duration;
@@ -71,6 +54,28 @@ public class Video {
 
 	@JsonIgnore
 	private String dataUrl;
+	
+	@JsonIgnore
+	private float rating;
+	
+	public float getRating() {
+		return rating;
+	}
+
+	public void setRating(float rating) {
+		this.rating = rating;
+	}
+
+	@JsonIgnore
+	private long totalVotes;
+
+	public long getTotalVotes() {
+		return totalVotes;
+	}
+
+	public void setTotalVotes(long totalVotes) {
+		this.totalVotes = totalVotes;
+	}
 
 	public long getId() {
 		return id;
@@ -121,6 +126,18 @@ public class Video {
 	public void setDataUrl(String dataUrl) {
 		this.dataUrl = dataUrl;
 	}
+	
+	/*
+	@JsonProperty
+	public float getRating() {
+		return rating;
+	}
+	
+	@JsonIgnore
+	public void setRating(float new_rate) {
+		rating = (rating + new_rate) / ++votes;
+	}
+	*/
 
 	public String getContentType() {
 		return contentType;
@@ -140,6 +157,14 @@ public class Video {
 		return (obj instanceof Video)
 				&& Objects.equals(getTitle(), ((Video) obj).getTitle())
 				&& getDuration() == ((Video) obj).getDuration();
+	}
+	
+	@Override
+	public String toString() {
+		return String.format(
+				"Video[id=%d, title=%s, duration=%d]", 
+				getId(), getTitle(), getDuration()
+		);
 	}
 
 }
