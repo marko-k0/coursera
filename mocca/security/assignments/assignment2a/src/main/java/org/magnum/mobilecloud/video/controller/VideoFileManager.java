@@ -17,6 +17,7 @@
  */
 package org.magnum.mobilecloud.video.controller;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -109,5 +110,14 @@ public class VideoFileManager {
 		Path target = getVideoPath(v);
 		Files.copy(videoData, target, StandardCopyOption.REPLACE_EXISTING);
 	}
+	
+	public File getFile(Video v) throws FileNotFoundException {
+        Path source = getVideoPath(v);  
+        if(!Files.exists(source)){      
+                throw new FileNotFoundException("Unable to find the referenced video file for videoId:"+v.getId());
+        }
+        return new File(source.toString());
+}
+
 	
 }

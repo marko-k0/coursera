@@ -1,7 +1,6 @@
 package org.magnum.mobilecloud.video.model;
 
 public class AverageVideoRating {
-
 	private final double rating;
 
 	private final long videoId;
