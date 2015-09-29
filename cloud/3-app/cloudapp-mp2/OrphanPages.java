@@ -27,12 +27,36 @@ public class OrphanPages extends Configured implements Tool {
     @Override
     public int run(String[] args) throws Exception {
         //TODO
+        Job job = Job.getInstance(this.getConf(), "Orphan Pages");
+        job.setOutputKeyClass(IntWritable.class);
+        job.setOutputValueClass(NullWritable.class);
+
+        job.setMapOutputKeyClass(IntWritable.class);
+        job.setMapOutputValueClass(IntWritable.class);
+
+        job.setMapperClass(LinkCountMap.class);
+        job.setReducerClass(OrphanPageReduce.class);
+
+        FileInputFormat.setInputPaths(job, new Path(args[0]));
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+
+        job.setJarByClass(OrphanPages.class);
+        return job.waitForCompletion(true) ? 0 : 1;
     }
 
     public static class LinkCountMap extends Mapper<Object, Text, IntWritable, IntWritable> {
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             //TODO
+            String[] line = value.toString().split(":");
+            StringTokenizer st = new StringTokenizer(line[1], " ");
+            IntWritable id = new IntWritable(Integer.parseInt(line[0]));
+            while(st.hasMoreTokens()) {
+                String token = st.nextToken();
+                context.write(new IntWritable(Integer.parseInt(token)), id);	
+                context.write(new IntWritable(Integer.parseInt(token)), new IntWritable(Integer.parseInt(token)));	
+            }
+            context.write(id, id);	
         }
     }
 
@@ -40,6 +64,12 @@ public class OrphanPages extends Configured implements Tool {
         @Override
         public void reduce(IntWritable key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
             //TODO
+            int ctr = 0;
+            for(IntWritable val : values)
+                if(ctr++ > 1) break;
+
+            if(ctr == 1)
+                context.write(key, NullWritable.get());
         }
     }
 }

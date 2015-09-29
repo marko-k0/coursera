@@ -68,6 +68,8 @@ public class TitleCount extends Configured implements Tool {
     public static class TitleCountMap extends Mapper<Object, Text, Text, IntWritable> {
         List<String> stopWords;
         String delimiters;
+        private final static IntWritable one = new IntWritable(1);
+        private Text word = new Text();
 
         @Override
         protected void setup(Context context) throws IOException,InterruptedException {
@@ -81,17 +83,34 @@ public class TitleCount extends Configured implements Tool {
             this.delimiters = readHDFSFile(delimitersPath, conf);
         }
 
-
         @Override
         public void map(Object key, Text value, Context context) throws IOException, InterruptedException {
             // TODO
+            String token;
+            String line = value.toString();
+            StringTokenizer st = new StringTokenizer(line, this.delimiters);
+            while(st.hasMoreTokens()) {
+                token = st.nextToken().toLowerCase(); 
+                if(this.stopWords.contains(token)) 
+                    continue;
+                word.set(token); 
+                context.write(word, one);	
+            }
         }
     }
 
     public static class TitleCountReduce extends Reducer<Text, IntWritable, Text, IntWritable> {
+        private IntWritable result = new IntWritable();
+
         @Override
         public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
             // TODO
+            int sum = 0;
+            for (IntWritable val : values) {
+                sum += val.get();
+            }
+            result.set(sum);
+            context.write(key, result);
         }
     }
 }
