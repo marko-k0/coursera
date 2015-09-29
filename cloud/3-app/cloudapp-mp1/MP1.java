@@ -1,4 +1,9 @@
 import java.io.File;
+import java.io.FileReader;
+import java.io.BufferedReader;
+import java.util.StringTokenizer;
+import java.util.HashMap;
+import java.util.TreeMap;
 import java.lang.reflect.Array;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -50,9 +55,77 @@ public class MP1 {
     }
 
     public String[] process() throws Exception {
-        String[] ret = new String[20];
+	    String[] ret = new String[20];
+
+        class ValueComparator implements Comparator {
+            Map map;
+
+            public ValueComparator(Map map) {
+                this.map = map; 
+            }
+
+            public int compare(Object keyA, Object keyB) {
+                Comparable valueA = (Comparable) map.get(keyA);
+                Comparable valueB = (Comparable) map.get(keyB);
+                
+                if(valueB.compareTo(valueA) == 0)
+                    return ((String)keyA).compareTo((String)keyB);
+                else
+                    return valueB.compareTo(valueA);
+            }
+        }
        
-        //TODO
+	    try(BufferedReader br = new BufferedReader(new FileReader(new File(this.inputFileName)))) {
+            String token;
+            StringTokenizer st;        
+            Integer count;
+            int ctr = 0;
+            int lineCtr = 0;
+            HashMap<String, Integer> wordCount = new HashMap<String, Integer>();
+            HashMap<Integer, Integer> indexMap = new HashMap<Integer, Integer>();
+            Integer[] indexes = getIndexes();
+            for(Integer idx : indexes) {
+                count = indexMap.get(idx);
+                if(count == null)
+                    indexMap.put(idx, 1);
+                else
+                    indexMap.put(idx, count + 1);
+            }
+
+            List stopWordsList = Arrays.asList(stopWordsArray);
+	        for(String line; (line = br.readLine()) != null; ) {
+                if(indexMap.containsKey(lineCtr)) {
+                    ctr = indexMap.get(lineCtr);
+                    while(0 < ctr--) {
+                        st = new StringTokenizer(line, delimiters);
+                        while(st.hasMoreTokens()) {
+                            token = st.nextToken().toLowerCase().trim(); 
+                            if(stopWordsList.contains(token))
+                                continue;
+                            
+                            count = wordCount.get(token);
+                            if(count == null)
+                                wordCount.put(token, 1);
+                            else
+                                wordCount.put(token, count + 1);
+                        }
+                    }
+                }
+                lineCtr++;
+            }	
+
+            ValueComparator vc = new ValueComparator(wordCount);
+            TreeMap<String, Integer> sortedWordCount = new TreeMap<String, Integer>(vc); 
+            sortedWordCount.putAll(wordCount);
+
+            ctr = 0;
+            for(Map.Entry<String, Integer> entry : sortedWordCount.entrySet()) {
+                ret[ctr++] = entry.getKey();
+
+                if(ctr >= 20)
+                    break;
+            }
+	    }
 
         return ret;
     }
