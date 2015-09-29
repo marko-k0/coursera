@@ -23,7 +23,7 @@ public class TopWordFinderTopologyPartC {
 
     Config config = new Config();
     config.setDebug(true);
-
+    config.put("inputFile", args[0]);
 
     /*
     ----------------------TODO-----------------------
@@ -36,10 +36,11 @@ public class TopWordFinderTopologyPartC {
     SplitSentenceBolt -> "split"
     WordCountBolt -> "count"
     NormalizerBolt -> "normalize"
-
-
-
     ------------------------------------------------- */
+    builder.setSpout("spout", new FileReaderSpout(), 1);
+    builder.setBolt("split", new SplitSentenceBolt(), 5).shuffleGrouping("spout");
+    builder.setBolt("normalize", new NormalizerBolt(), 5).shuffleGrouping("split");
+    builder.setBolt("count", new WordCountBolt(), 12).fieldsGrouping("normalize", new Fields("word"));
 
 
     config.setMaxTaskParallelism(3);
