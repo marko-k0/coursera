@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 22
+    compileSdkVersion 18
     buildToolsVersion "21.1.2"
 
     defaultConfig {
         applicationId "vandy.mooc"
-        minSdkVersion 21
-        targetSdkVersion 22
+        minSdkVersion 18
+        targetSdkVersion 18
     }
 
     buildTypes {

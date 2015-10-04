@@ -4,4 +4,8 @@
     <string name="download_image">Download Image</string>
     <string name="defaultURL">http://www.dre.vanderbilt.edu/~schmidt/robot.png</string>
     <string name="enter_url">Enter URL</string>
+    <string name="title_activity_filter_image">FilterImageActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
 </resources>

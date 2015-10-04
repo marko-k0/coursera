@@ -1,8 +1,7 @@
 package vandy.mooc;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.net.Uri;
+import android.app.FragmentManager;
 import android.os.Bundle;
 
 /**
@@ -10,10 +9,7 @@ import android.os.Bundle;
  * the local device, and returns a Uri to the image file.
  */
 public class DownloadImageActivity extends Activity {
-    /**
-     * Debugging tag used by the Android logger.
-     */
-    private final String TAG = getClass().getSimpleName();
+    private static final String TAG_DOWNLOAD_FRAGMENT = "download_fragment";
 
     /**
      * Hook method called when a new instance of Activity is created.
@@ -26,20 +22,17 @@ public class DownloadImageActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         // Always call super class for necessary
         // initialization/implementation.
-        // @@ TODO -- you fill in here.
+        super.onCreate(savedInstanceState);
 
-        // Get the URL associated with the Intent data.
-        // @@ TODO -- you fill in here.
+        FragmentManager fm = getFragmentManager();
+        DownloadImageFragment downloadFragment =
+                (DownloadImageFragment)fm.findFragmentByTag(TAG_DOWNLOAD_FRAGMENT);
 
-        // Download the image in the background, create an Intent that
-        // contains the path to the image file, and set this as the
-        // result of the Activity.
-
-        // @@ TODO -- you fill in here using the Android "HaMeR"
-        // concurrency framework.  Note that the finish() method
-        // should be called in the UI thread, whereas the other
-        // methods should be called in the background thread.  See
-        // http://stackoverflow.com/questions/20412871/is-it-safe-to-finish-an-android-activity-from-a-background-thread
-        // for more discussion about this topic.
+        // If the Fragment is non-null, then it is currently being
+        // retained across a configuration change.
+        if (downloadFragment == null) {
+            downloadFragment = new DownloadImageFragment();
+            fm.beginTransaction().add(downloadFragment, TAG_DOWNLOAD_FRAGMENT).commit();
+        }
     }
 }
