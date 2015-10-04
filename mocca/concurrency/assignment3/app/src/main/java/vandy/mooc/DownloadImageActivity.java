@@ -10,6 +10,7 @@ import android.os.Bundle;
  */
 public class DownloadImageActivity extends Activity {
     private static final String TAG_DOWNLOAD_FRAGMENT = "download_fragment";
+    private DownloadImageFragment mDownloadImageFragment;
 
     /**
      * Hook method called when a new instance of Activity is created.
@@ -25,14 +26,13 @@ public class DownloadImageActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         FragmentManager fm = getFragmentManager();
-        DownloadImageFragment downloadFragment =
-                (DownloadImageFragment)fm.findFragmentByTag(TAG_DOWNLOAD_FRAGMENT);
+        mDownloadImageFragment = (DownloadImageFragment)fm.findFragmentByTag(TAG_DOWNLOAD_FRAGMENT);
 
         // If the Fragment is non-null, then it is currently being
         // retained across a configuration change.
-        if (downloadFragment == null) {
-            downloadFragment = new DownloadImageFragment();
-            fm.beginTransaction().add(downloadFragment, TAG_DOWNLOAD_FRAGMENT).commit();
+        if (mDownloadImageFragment == null) {
+            mDownloadImageFragment = new DownloadImageFragment();
+            fm.beginTransaction().add(mDownloadImageFragment, TAG_DOWNLOAD_FRAGMENT).commit();
         }
     }
 }

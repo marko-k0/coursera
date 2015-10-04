@@ -25,6 +25,8 @@ public class DownloadImageFragment extends Fragment {
 
     private Activity mDownloadActivity;
     private Context mAppContext;
+    private DownloadAsyncTask mDownloadAsyncTask;
+    private GrayScaleAsyncTask mGrayScaleAsyncTask;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,10 +46,9 @@ public class DownloadImageFragment extends Fragment {
             // Get the URL associated with the Intent data.
             final Uri url = mDownloadActivity.getIntent().getData();
 
-            // Download the image in the background, create an Intent that
-            // contains the path to the image file, and set this as the
-            // result of the Activity.
-            new DownloadAsyncTask().execute(url);
+            // Download the image in the background.
+            mDownloadAsyncTask = new DownloadAsyncTask();
+            mDownloadAsyncTask.execute(url);
         }
     }
 
@@ -70,12 +71,11 @@ public class DownloadImageFragment extends Fragment {
                 Log.e(TAG, "Error occurred trying to download image");
                 if (mDownloadActivity != null) {
                     mDownloadActivity.setResult(RESULT_DOWNLOAD_ERROR);
-
                     mDownloadActivity.finish();
                 }
-            }
-            else {
-                new GrayScaleAsyncTask().execute(filePath);
+            } else {
+                mGrayScaleAsyncTask = new GrayScaleAsyncTask();
+                mGrayScaleAsyncTask.execute(filePath);
             }
         }
     }
@@ -92,8 +92,7 @@ public class DownloadImageFragment extends Fragment {
             if (filePath == null) {
                 Log.e(TAG, "Error occurred trying to download image");
                 mDownloadActivity.setResult(RESULT_DOWNLOAD_ERROR);
-            }
-            else {
+            } else {
                 Intent data = new Intent();
                 data.setData(filePath);
 
